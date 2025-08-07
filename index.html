@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sertifikat Kelulusan Siswa</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f5f5f5;
+      text-align: center;
+      padding: 20px;
+    }
+    .input-container {
+      margin-top: 30px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      font-size: 16px;
+      width: 250px;
+      margin-right: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .certificate {
+      display: none;
+      border: 4px solid #000;
+      padding: 40px;
+      margin-top: 40px;
+      background-color: white;
+      width: 80%;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      position: relative;
+    }
+    .certificate h1 {
+      font-size: 32px;
+      margin-bottom: 0;
+    }
+    .certificate p {
+      font-size: 18px;
+      margin: 10px 0;
+    }
+    #qrcode {
+      margin-top: 20px;
+    }
+    .print-button {
+      margin-top: 20px;
+      display: none;
+    }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      .certificate, .certificate * {
+        visibility: visible;
+      }
+      .certificate {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Aplikasi Sertifikat Kelulusan</h2>
+
+  <div class="input-container">
+    <input type="text" id="nimInput" placeholder="Masukkan NIM Siswa" />
+    <button onclick="cekKelulusan()">Cek Kelulusan</button>
+  </div>
+
+  <div class="certificate" id="certificate">
+    <h1>SERTIFIKAT KELULUSAN</h1>
+    <p>Dengan ini menyatakan bahwa:</p>
+    <p><strong id="studentName"></strong></p>
+    <p>NIM: <span id="studentNIM"></span></p>
+    <p>Telah dinyatakan <strong>LULUS</strong> dari sekolah dengan prestasi yang membanggakan.</p>
+    <p>Tanggal: <span id="tanggal"></span></p>
+    <p><em>SMAN 10 TANGSEL</em></p>
+    <div id="qrcode"></div>
+  </div>
+
+  <div class="print-button">
+    <button onclick="window.print()">Cetak Sertifikat</button>
+  </div>
+
+  <script>
+    const dataSiswa = {
+      "0082675904": "AFRILIA FADILLAH PUSPITASARI",
+      "0086340785": "AHMAD ZAKI LUBIS",
+      "0075406046": "ANDITA STELLA PERMANA SARI",
+      "0071771202": "ANGGI MARITO TINAMBUNAN",
+      "0084104945": "ASSYIFA RACHELSA PUTRI",
+      "0084598957": "ATHA MUNGGARANI SAEFFI",
+      "0087550349": "CHIKA WIDIYA PRATIWI",
+      "0082878220": "FATHIYAH ZAHRA",
+      "0073105979": "FIRSTY ADELIA",
+      "0084727521": "HAPITA HAERANI",
+      "0083688687": "ILONA RABIHA MARYAM",
+      "0084765887": "JASTINE HALIM",
+      "0073161532": "KARINA ANINDYA MULYA",
+      "0089722804": "KEISYA MAULIDA KAMILAH",
+      "0078155400": "KHAYLA AULYA BALQIS",
+      "0084883606": "MICHELL SYAIDAH",
+      "0078639553": "MUHAMAD NAUFAL FADLURRAHMAN",
+      "0081039577": "MUHAMMAD BAGUS ROFELY",
+      "0074539571": "MUHAMMAD IRZA SIDKI",
+      "0081645824": "MUHAMMAD RAFFI PRATAMA",
+      "0075643219": "NOVALIA IMTIYAAZ",
+      "0084383273": "RAIHAN PUTRA SYAHRIAL",
+      "0085515586": "RAISYA ALIKA CAHYADI",
+      "0073165132": "RAMZA AKBAR PAMUDJI",
+      "0075648739": "RASYA FIRMANSYAH",
+      "0073754308": "REGITA DWI ZAHRANI",
+      "0081834272": "REIFAN IKHSANNUL ASFA",
+      "0074507542": "REIHAN SAHERTIAN",
+      "0073617901": "REYZTA IZMADHANI",
+      "0088788521": "SHAFIRA AMBARWATI MAHARANI",
+      "0077174585": "SHANDRA FLORYAWAN",
+      "0081796247": "SHERLY PUTRI DAMAYANHTI",
+      "0082479433": "SINDY ARVINNASARI",
+      "0087219704": "SITI FATIMAH AZ ZAHRA",
+      "0081477334": "SYAHRUN FAUZI",
+      "0086125227": "SYIFA FITRIYA RAMADANI",
+      "0074167069": "TALITA VANIA DWI WIDYAWATI",
+      "0081004607": "YUNISA",
+      "0073025801": "ZULFA SALSABILA RAMADHANI"
+    };
+
+    function cekKelulusan() {
+      const nim = document.getElementById("nimInput").value.trim();
+      const nama = dataSiswa[nim];
+
+      if (nama) {
+        document.getElementById("studentName").textContent = nama;
+        document.getElementById("studentNIM").textContent = nim;
+
+        const today = new Date();
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById("tanggal").textContent = today.toLocaleDateString('id-ID', options);
+
+        document.getElementById("certificate").style.display = "block";
+        document.querySelector(".print-button").style.display = "block";
+
+        // Buat QR Code
+        const qrText = `${nim} - ${nama} - LULUS - SMAN 10 TANGSEL`;
+        const qrDiv = document.getElementById("qrcode");
+        qrDiv.innerHTML = ""; // bersihkan QR sebelumnya
+        new QRCode(qrDiv, {
+          text: qrText,
+          width: 128,
+          height: 128
+        });
+      } else {
+        alert("NIM tidak ditemukan atau belum lulus.");
+        document.getElementById("certificate").style.display = "none";
+        document.querySelector(".print-button").style.display = "none";
+      }
+    }
+  </script>
+
+</body>
+</html>
